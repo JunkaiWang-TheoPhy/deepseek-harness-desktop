@@ -18,6 +18,12 @@ export {
 } from './contracts/schemas.js'
 
 export {
+  applyQueryToUrl,
+  cursorBelongsTo,
+  serializeCatalogQuery,
+} from './catalog/query.js'
+
+export {
   checkProviderPageItemIdUniqueness,
   checkQueryAgainstManifest,
   checkSnapshotProvenanceConsistency,
