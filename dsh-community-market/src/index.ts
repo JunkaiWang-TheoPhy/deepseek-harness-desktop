@@ -24,6 +24,12 @@ export {
 } from './catalog/query.js'
 
 export {
+  normalizeNpmName,
+  normalizeRepositorySubdirectory,
+  normalizeRepositoryUrl,
+} from './catalog/identity.js'
+
+export {
   checkProviderPageItemIdUniqueness,
   checkQueryAgainstManifest,
   checkSnapshotProvenanceConsistency,
