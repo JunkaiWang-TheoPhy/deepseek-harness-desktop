@@ -92,7 +92,7 @@ export function buildConfirmToken(input: {
  * its presence in the rendered dialog.
  */
 export function buildInstallPreview(input: {
-  item: { readonly id: string; readonly name: string; readonly displayName: string; readonly summary: string }
+  item: { readonly id: string; readonly name?: string; readonly displayName: string; readonly summary?: string }
   source: { readonly sourceRecordId: string; readonly providerId: string }
   target: InstallTarget
   profile: ProfileSnapshot
@@ -100,9 +100,9 @@ export function buildInstallPreview(input: {
   lifecycleWarning: string
 }): InstallPreview {
   return {
-    pluginName: input.item.name,
+    pluginName: input.item.name ?? input.item.displayName,
     displayName: input.item.displayName,
-    summary: input.item.summary,
+    summary: input.item.summary ?? '',
     source: input.source,
     target: input.target,
     profile: input.profile,
