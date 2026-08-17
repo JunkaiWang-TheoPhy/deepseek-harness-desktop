@@ -44,6 +44,27 @@ export type {
   SourceRecordIdFactory,
 } from './contracts/source-store.js'
 
+export { RestrictedHttpClient } from './host/http-client.js'
+export {
+  RestrictedHttpError,
+  isRestrictedHttpError,
+} from './host/http-errors.js'
+export type {
+  RestrictedHttpClientHooks,
+  RestrictedHttpClientOptions,
+} from './host/http-client.js'
+export type { RestrictedHttpErrorReason } from './host/http-errors.js'
+export {
+  defaultAggregateBudgets,
+  defaultCacheBudgets,
+  defaultHttpBudgets,
+} from './host/constants.js'
+export type {
+  AggregateBudgets,
+  CacheBudgets,
+  RestrictedHttpBudgets,
+} from './host/constants.js'
+
 export {
   checkProviderPageItemIdUniqueness,
   checkQueryAgainstManifest,
