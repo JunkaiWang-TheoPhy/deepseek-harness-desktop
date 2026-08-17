@@ -13,4 +13,10 @@ export default defineConfig({
   clean: true,
   sourcemap: true,
   target: 'node22',
+  // Node.js library: keep runtime deps as `require()`/`import` at the call site.
+  // Bundling ajv (with fast-uri re-export of the DOM `URIComponent` type) trips
+  // rolldown-plugin-dts, and Node apps have the deps installed anyway.
+  deps: {
+    neverBundle: ['ajv', 'ajv-formats', 'fast-uri'],
+  },
 })
