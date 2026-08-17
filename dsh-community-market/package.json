@@ -18,7 +18,18 @@
     "url": "https://github.com/anywhere-labs/deepseek-harness-desktop/issues"
   },
   "type": "module",
+  "main": "lib/index.mjs",
+  "types": "lib/index.d.mts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.mts",
+      "default": "./lib/index.mjs"
+    },
+    "./schemas": "./lib/schemas/index.mjs",
+    "./package.json": "./package.json"
+  },
   "files": [
+    "lib/**",
     "docs/**",
     "LICENSE",
     "README.md",
@@ -32,12 +43,13 @@
     "node": "^22.19.0 || >=24.0.0"
   },
   "scripts": {
-    "check": "node scripts/verify-docs.mjs",
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "verify:contract": "node scripts/verify-contract.mjs",
+    "verify:docs": "node scripts/verify-docs.mjs",
+    "check": "yarn run build && yarn run typecheck && yarn run test && yarn run verify:contract && yarn run verify:docs",
     "prepack": "yarn run check"
-  },
-  "devDependencies": {
-    "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
   },
   "keywords": [
     "deepseek",
@@ -45,5 +57,14 @@
     "plugin",
     "marketplace",
     "community"
-  ]
+  ],
+  "devDependencies": {
+    "@types/node": "^22.20.0",
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "tsdown": "^0.22.2",
+    "typescript": "^5.6.3",
+    "unrun": "^0.3.1",
+    "vitest": "^2.1.8"
+  }
 }

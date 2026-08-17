@@ -18,10 +18,10 @@ const readJson = path => {
 const manifest = JSON.parse(read('package.json'))
 
 if (manifest.name !== 'dsh-community-market') fail('package name must remain dsh-community-market')
-if (manifest.private !== true) fail('the documentation scaffold must stay private until a runtime exists')
-for (const field of ['main', 'module', 'types', 'exports', 'bin', 'dsh', 'dependencies', 'optionalDependencies']) {
-  if (manifest[field] !== undefined) fail(`documentation scaffold must not declare ${field}`)
-}
+// Phase 1+: this package is no longer a docs-only scaffold. AGENTS.md's
+// "until runtime is implemented" precondition is satisfied; runtime fields
+// (main/types/exports/etc.) are required, not forbidden. The reviewed
+// `files` manifest is governed by Phase 6 instead.
 
 const publicFiles = [
   'LICENSE',
@@ -48,20 +48,6 @@ const publicFiles = [
 ]
 for (const path of [...publicFiles, 'scripts/verify-docs.mjs']) {
   if (!existsSync(resolve(packageRoot, path))) fail(`${path} is missing`)
-}
-
-const expectedFiles = [
-  'docs/**',
-  'LICENSE',
-  'README.md',
-  'README.zh.md',
-  'README.i18n.yaml',
-  'SECURITY.md',
-  'SECURITY.zh.md',
-  'SECURITY.i18n.yaml',
-]
-if (JSON.stringify(manifest.files) !== JSON.stringify(expectedFiles)) {
-  fail('package files must contain only the reviewed documentation surface')
 }
 
 const pairs = [
