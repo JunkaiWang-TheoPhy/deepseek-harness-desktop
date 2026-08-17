@@ -168,6 +168,19 @@ async function fetchWithStrictRedirects(
   }
 }
 
+/** Options for `fetchJson`. */
+export interface FetchJsonOptions {
+  /** Caller-supplied cancellation. */
+  readonly signal?: AbortSignal
+  /**
+   * Query parameters to append to the endpoint. The endpoint itself must
+   * not already carry a query string — preflight rejects that case. The
+   * caller is responsible for filtering the params (e.g. to the source
+   * manifest's `query.supported` list).
+   */
+  readonly query?: URLSearchParams
+}
+
 export class RestrictedHttpClient {
   private readonly budgets: RestrictedHttpBudgets
   private readonly fetchImpl: typeof fetch
@@ -186,34 +199,40 @@ export class RestrictedHttpClient {
   }
 
   /**
-   * Fetch and validate a JSON response from a trusted URL.
+   * Fetch and validate a JSON response from a trusted endpoint URL.
    *
    * Throws `RestrictedHttpError` with a stable `reason` on any failure.
    * The response body is **only** returned to the caller after schema
    * validation succeeds — a malformed or oversized response never
    * reaches the cache or the adapter.
+   *
+   * The endpoint URL must not carry its own query string; use `options.query`
+   * to pass parameters that the platform URL builder encodes onto the
+   * final request URL.
    */
   async fetchJson<T>(
-    input: string,
+    endpoint: string,
     schema: JsonValidator,
-    callerSignal?: AbortSignal,
+    options: FetchJsonOptions = {},
   ): Promise<T> {
-    const endpoint = preflightEndpointUrl(input)
-    await resolveAndCheck(endpoint.hostname, this.resolveImpl)
+    const base = preflightEndpointUrl(endpoint)
+    await resolveAndCheck(base.hostname, this.resolveImpl)
+
+    if (options.query !== undefined && options.query.toString() !== '') {
+      // URL.search setter does the encoding for us.
+      base.search = options.query.toString()
+    }
 
     // Compose an AbortSignal that fires on total deadline OR caller cancel.
     const totalSignal = AbortSignal.any([
       AbortSignal.timeout(this.budgets.totalMs),
-      callerSignal ?? new AbortController().signal,
+      options.signal ?? new AbortController().signal,
     ])
     void this.budgets.connectMs
     void this.budgets.firstByteMs
-    // Note: connect/first-byte deadlines are folded into `totalSignal` for
-    // Phase 2 simplicity; finer-grained first-byte enforcement lands when we
-    // stream the response body (M2.1 follow-up).
 
     const response = await fetchWithStrictRedirects(
-      endpoint,
+      base,
       this.fetchImpl,
       this.budgets,
       totalSignal,

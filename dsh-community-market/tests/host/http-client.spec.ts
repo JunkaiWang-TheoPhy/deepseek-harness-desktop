@@ -52,6 +52,21 @@ describe('RestrictedHttpClient URL preflight', () => {
       client.fetchJson('https://catalog.example.org/v1/plugins?prefilled=true', dummySchema),
     ).rejects.toMatchObject({ reason: 'parse' })
   })
+
+  it('appends URLSearchParams via options.query and forwards the encoded URL to fetch', async () => {
+    let observedUrl = ''
+    const fetchImpl: typeof fetch = (async (input) => {
+      observedUrl = typeof input === 'string' ? input : (input as URL).toString()
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { 'content-type': 'application/json' },
+      })
+    }) as typeof fetch
+    const client = makeClient({ fetchImpl, resolveImpl: publicResolve })
+    const params = new URLSearchParams({ q: 'sidebar', limit: '20' })
+    await client.fetchJson('https://catalog.example.org/v1/plugins', dummySchema, { query: params })
+    expect(observedUrl).toBe('https://catalog.example.org/v1/plugins?q=sidebar&limit=20')
+  })
 })
 
 describe('RestrictedHttpClient DNS preflight', () => {
@@ -179,7 +194,7 @@ describe('RestrictedHttpClient abort', () => {
     }) as typeof fetch
     const client = makeClient({ fetchImpl, resolveImpl: publicResolve })
     await expect(
-      client.fetchJson('https://catalog.example.org/v1/plugins', dummySchema, controller.signal),
+      client.fetchJson('https://catalog.example.org/v1/plugins', dummySchema, { signal: controller.signal }),
     ).rejects.toMatchObject({ reason: 'aborted' })
   })
 })
