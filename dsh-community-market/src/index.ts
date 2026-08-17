@@ -17,6 +17,13 @@ export {
   validateCatalogSnapshot,
 } from './contracts/schemas.js'
 
+export {
+  checkProviderPageItemIdUniqueness,
+  checkQueryAgainstManifest,
+  checkSnapshotProvenanceConsistency,
+  declaresBothNpmAndRepository,
+} from './contracts/semantic.js'
+
 export type {
   AdapterId,
   CatalogProviderPage,
