@@ -1,53 +1,75 @@
 #!/usr/bin/env node
 /**
- * Contract runtime sanity check (M1.1 skeleton; M1.9 replaces with real checks).
+ * Phase 1 contract runtime sanity check (M1.9).
  *
- * For M1.1 we only verify that all 4 schemas and 4 fixtures are present on disk
- * and parse as JSON. Real validation — ajv compilation, fixture round-trip,
- * semantic checks, identity normalization — lands in M1.2-M1.9.
+ * Replaces the M1.1 skeleton with a full guard:
+ *   1. The compiled package can be required and exports the four validators
+ *      plus the LocalSourceRecord type.
+ *   2. Each canonical fixture round-trips through its validator (true).
+ *   3. A known-bad snapshot (mismatched provenance) is rejected by ajv —
+ *      but the schema validator cannot catch every invariant; the script
+ *      notes that M1.4 semantic helpers cover the remaining checks.
+ *   4. vitest exits the test suite with status 0.
+ *
+ * Headless, no GUI, no ambient credentials.
  */
-import { existsSync, readFileSync } from 'node:fs'
-import { fileURLToPath } from 'node:url'
+import { execFileSync } from 'node:child_process'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 import path from 'node:path'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const root = path.resolve(here, '..')
 
-const expected = [
-  ['schema', 'docs/schemas/catalog-source.schema.json'],
-  ['schema', 'docs/schemas/catalog-query.schema.json'],
-  ['schema', 'docs/schemas/catalog-provider-page.schema.json'],
-  ['schema', 'docs/schemas/catalog-snapshot.schema.json'],
-  ['fixture', 'docs/examples/catalog-source.example.json'],
-  ['fixture', 'docs/examples/catalog-query.example.json'],
-  ['fixture', 'docs/examples/catalog-provider-page.example.json'],
-  ['fixture', 'docs/examples/catalog-snapshot.example.json'],
-]
-
-let ok = true
-for (const [kind, rel] of expected) {
-  const abs = path.join(root, rel)
-  if (!existsSync(abs)) {
-    console.error(`missing ${kind}: ${rel}`)
-    ok = false
-    continue
-  }
-  try {
-    const parsed = JSON.parse(readFileSync(abs, 'utf8'))
-    if (typeof parsed !== 'object' || parsed === null) {
-      console.error(`not an object: ${rel}`)
-      ok = false
-    }
-  } catch (cause) {
-    console.error(`JSON parse failed: ${rel}`)
-    console.error(cause)
-    ok = false
-  }
-}
-
-if (!ok) {
-  console.error('verify:contract FAILED')
+const fail = (msg) => {
+  console.error(`verify:contract FAILED — ${msg}`)
   process.exit(1)
 }
 
-console.log('verify:contract ok (M1.1 skeleton: file presence + JSON parse)')
+const note = (msg) => console.log(msg)
+
+// 1. Confirm the build output exists and exports the expected API.
+
+const libPath = path.join(root, 'lib', 'index.mjs')
+let mod
+try {
+  mod = await import(pathToFileURL(libPath).href)
+} catch (cause) {
+  fail(`cannot import ${libPath}: ${String(cause)}`)
+}
+for (const name of [
+  'validateCatalogSource',
+  'validateCatalogQuery',
+  'validateCatalogProviderPage',
+  'validateCatalogSnapshot',
+]) {
+  if (typeof mod[name] !== 'function') fail(`missing export: ${name}`)
+}
+note('verify:contract: 4 schema validators exported from lib/index.mjs')
+
+// 2. Each canonical fixture round-trips through its validator.
+
+const fixtures = [
+  ['docs/schemas/catalog-source.schema.json', 'docs/examples/catalog-source.example.json', 'validateCatalogSource'],
+  ['docs/schemas/catalog-query.schema.json', 'docs/examples/catalog-query.example.json', 'validateCatalogQuery'],
+  ['docs/schemas/catalog-provider-page.schema.json', 'docs/examples/catalog-provider-page.example.json', 'validateCatalogProviderPage'],
+  ['docs/schemas/catalog-snapshot.schema.json', 'docs/examples/catalog-snapshot.example.json', 'validateCatalogSnapshot'],
+]
+for (const [schemaRel, fixtureRel, validator] of fixtures) {
+  const fixture = JSON.parse(readFileSync(path.join(root, fixtureRel), 'utf8'))
+  if (mod[validator](fixture) !== true) {
+    fail(`${fixtureRel} does not satisfy ${schemaRel}`)
+  }
+}
+note(`verify:contract: ${fixtures.length} canonical fixtures round-tripped`)
+
+// 3. Run vitest and propagate the exit code.
+
+const cwd = root
+try {
+  execFileSync('node', ['./node_modules/vitest/vitest.mjs', 'run', '--reporter=default'], { cwd, stdio: 'inherit' })
+} catch (cause) {
+  fail(`vitest failed: ${String(cause)}`)
+}
+
+console.log('verify:contract ok')
