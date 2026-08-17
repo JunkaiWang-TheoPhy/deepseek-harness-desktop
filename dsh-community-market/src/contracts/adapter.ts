@@ -49,6 +49,8 @@ export interface CatalogAdapterFetchContext {
  */
 export interface CatalogAdapter {
   readonly adapterId: AdapterId
+  /** True when registered as a preinstalled partner (§17-5 = B). Optional; default false. */
+  readonly isBuiltInPartner?: boolean
   fetch(
     query: CatalogQuery,
     context: CatalogAdapterFetchContext,

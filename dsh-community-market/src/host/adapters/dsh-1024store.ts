@@ -85,8 +85,13 @@ function build1024StoreQuery(query: CatalogQuery, supported: readonly ('q' | 'ca
 const PROVIDER_ID = 'org.dsh.1024store'
 const ENDPOINT = 'https://deepseek1024.com/api/v1/registry'
 
+/** Static flag signaling this adapter is a preinstalled partner (per §17-5 = B). */
+export const IS_BUILT_IN_PARTNER = true
+
 export class Dsh1024StoreAdapter implements CatalogAdapter {
   readonly adapterId = 'market.dsh-1024store-v1'
+  /** True when the adapter is registered as a preinstalled partner. */
+  readonly isBuiltInPartner = IS_BUILT_IN_PARTNER
 
   constructor(
     private readonly httpClient: RestrictedHttpClient,
