@@ -29,6 +29,8 @@ export {
   normalizeRepositoryUrl,
 } from './catalog/identity.js'
 
+export type { CatalogAdapter, CatalogAdapterFetchContext } from './contracts/adapter.js'
+
 export {
   checkProviderPageItemIdUniqueness,
   checkQueryAgainstManifest,
