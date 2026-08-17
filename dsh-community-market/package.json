@@ -49,7 +49,8 @@
     "verify:contract": "node scripts/verify-contract.mjs",
     "verify:loader": "node scripts/verify-loader-boot.mjs",
     "verify:docs": "node scripts/verify-docs.mjs",
-    "check": "yarn run build && yarn run typecheck && yarn run test && yarn run verify:contract && yarn run verify:loader && yarn run verify:docs",
+    "verify:install-security": "node scripts/verify-install-security.mjs",
+    "check": "yarn run build && yarn run typecheck && yarn run test && yarn run verify:contract && yarn run verify:loader && yarn run verify:install-security && yarn run verify:docs",
     "prepack": "yarn run check"
   },
   "keywords": [

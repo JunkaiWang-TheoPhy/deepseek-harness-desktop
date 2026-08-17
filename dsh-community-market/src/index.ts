@@ -59,6 +59,27 @@ export {
   Config as MarketHostConfigSchema,
 } from './host/plugin.js'
 export type { Config as MarketHostConfig } from './host/plugin.js'
+export {
+  IdentityError,
+  StaleConfirmationError,
+  isIdentityError,
+} from './host/install/errors.js'
+export type { IdentityErrorReason, StaleConfirmationErrorReason } from './host/install/errors.js'
+export {
+  resolveNpmTarget,
+  resolveGitTarget,
+  assertStrictSemVer,
+  assertNpmName,
+  assertImmutableCommit,
+  isInstallTarget,
+} from './host/install/identity.js'
+export type { InstallTarget, NpmTarget, GitTarget, IdentityInput } from './host/install/identity.js'
+export { resolveCandidate } from './host/install/candidate.js'
+export type { Candidate, CandidateResolved, CandidateConflict, CandidateItem, IdentityChoice } from './host/install/candidate.js'
+export { buildConfirmToken, buildInstallPreview, CONFIRM_TOKEN_DEFAULT_TTL_MS } from './host/install/preview.js'
+export type { ConfirmToken, InstallPreview, ProfileSnapshot, GenerationSnapshot } from './host/install/preview.js'
+export { recheckConfirm } from './host/install/confirm.js'
+export type { RecheckInput } from './host/install/confirm.js'
 export { PersistedCatalogSourceStore } from './host/store-impl.js'
 export { SettingsKvStorage } from './host/settings-storage.js'
 export { DefaultSourceRegistry } from './host/registry.js'
