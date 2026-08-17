@@ -32,6 +32,19 @@ export {
 export type { CatalogAdapter, CatalogAdapterFetchContext } from './contracts/adapter.js'
 
 export {
+  composeLocalSourceRecord,
+  defaultSourceRecordIdFactory,
+  validateAddInput,
+  validateRecordCoherence,
+} from './contracts/source-store.js'
+export type {
+  AddSourceResult,
+  CatalogSourceStore,
+  LocalSourceRecordInput,
+  SourceRecordIdFactory,
+} from './contracts/source-store.js'
+
+export {
   checkProviderPageItemIdUniqueness,
   checkQueryAgainstManifest,
   checkSnapshotProvenanceConsistency,
