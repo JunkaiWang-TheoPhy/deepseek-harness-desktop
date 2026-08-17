@@ -16,3 +16,24 @@ export {
   validateCatalogProviderPage,
   validateCatalogSnapshot,
 } from './contracts/schemas.js'
+
+export type {
+  AdapterId,
+  CatalogProviderPage,
+  CatalogProviderPageItem,
+  CatalogQuery,
+  CatalogQueryField,
+  CatalogQuerySort,
+  CatalogSnapshot,
+  CatalogSnapshotItem,
+  CatalogSnapshotSource,
+  CatalogSourceManifest,
+  LocalSourceRecord,
+  NpmPackage,
+  PluginCapabilityList,
+  PluginCompatibility,
+  PluginPublisher,
+  ProviderId,
+  Repository,
+  SourceRecordId,
+} from './contracts/types.js'
