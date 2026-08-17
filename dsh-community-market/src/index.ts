@@ -78,7 +78,21 @@ export { resolveCandidate } from './host/install/candidate.js'
 export type { Candidate, CandidateResolved, CandidateConflict, CandidateItem, IdentityChoice } from './host/install/candidate.js'
 export { buildConfirmToken, buildInstallPreview, CONFIRM_TOKEN_DEFAULT_TTL_MS } from './host/install/preview.js'
 export type { ConfirmToken, InstallPreview, ProfileSnapshot, GenerationSnapshot } from './host/install/preview.js'
+export type {
+  InstallRouteResult,
+  PreviewRequest as InstallPreviewRequest,
+  ConfirmRequest as InstallConfirmRequest,
+  DesktopProfilesLike as InstallDesktopProfiles,
+  DesktopPnpmLike as InstallDesktopPnpm,
+  GenerationReader as InstallGenerationReader,
+  InstallRouteDeps,
+} from './host/install/routes.js'
 export { recheckConfirm } from './host/install/confirm.js'
+export {
+  handleInstallPreview,
+  handleInstallConfirm,
+  missingCapability,
+} from './host/install/routes.js'
 export type { RecheckInput } from './host/install/confirm.js'
 export { PersistedCatalogSourceStore } from './host/store-impl.js'
 export { SettingsKvStorage } from './host/settings-storage.js'

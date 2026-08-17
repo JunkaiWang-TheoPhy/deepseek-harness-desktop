@@ -19,10 +19,12 @@ import { resolveCandidate, type IdentityChoice } from './candidate.js'
 import { buildConfirmToken, buildInstallPreview } from './preview.js'
 import { recheckConfirm } from './confirm.js'
 import { IdentityError, StaleConfirmationError, isIdentityError } from './errors.js'
-import { readCurrentProfile, type DesktopProfilesLike, type GenerationReader } from './profile.js'
+import { readCurrentProfile, type DesktopProfilesLike as _DesktopProfilesLike, type GenerationReader as _GenerationReader } from './profile.js'
+// Re-export so consumers (and the bundled d.ts) see the types.
+export type DesktopProfilesLike = _DesktopProfilesLike
+export type GenerationReader = _GenerationReader
 import type { ProfileSnapshot, GenerationSnapshot, ConfirmToken, InstallPreview } from './preview.js'
 
-/** Minimal surface `desktopPnpm` exposes (per dsh-plugin-desktop docs). */
 export interface DesktopPnpmLike {
   run(
     args: readonly string[],
@@ -48,7 +50,7 @@ export type InstallRouteResult =
   | { kind: 'ok-confirm'; exitCode: number | null; signal: NodeJS.Signals | null; spec: string }
   | { kind: 'error'; status: number; reason: string; detail?: string }
 
-interface PreviewRequest {
+export interface PreviewRequest {
   sourceRecordId: string
   itemId: string
   identityChoice?: IdentityChoice
@@ -65,7 +67,7 @@ interface PreviewRequest {
   lifecycleWarning: string
 }
 
-interface ConfirmRequest {
+export interface ConfirmRequest {
   token: ConfirmToken
   /** Re-fetched snapshot, must match the bound fetchedAt (T-05). */
   snapshotFetchedAt: string
