@@ -37,7 +37,8 @@
     "README.i18n.yaml",
     "SECURITY.md",
     "SECURITY.zh.md",
-    "SECURITY.i18n.yaml"
+    "SECURITY.i18n.yaml",
+    "THIRD_PARTY_NOTICES.md"
   ],
   "engines": {
     "node": "^22.19.0 || >=24.0.0"
