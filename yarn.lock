@@ -5776,7 +5776,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^18":
+"@types/react@npm:^18, @types/react@npm:^18.3.12":
   version: 18.3.31
   resolution: "@types/react@npm:18.3.31"
   dependencies:
@@ -7276,13 +7276,21 @@ __metadata:
   dependencies:
     "@deepseek-ai/cordis": "npm:4.0.1"
     "@deepseek-ai/dsh-brand": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-client-locale": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-client-runtime": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-client-ui-slots": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-client-ui-theme": "npm:0.1.0-rc.6"
     "@deepseek-ai/dsh-host-webserver": "npm:0.1.0-rc.6"
     "@deepseek-ai/dsh-invariants": "npm:0.1.0-rc.6"
     "@deepseek-ai/dsh-settings": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-typert-protocol": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-typert-registry": "npm:0.1.0-rc.6"
     "@deepseek-ai/schemastery": "npm:^3.18.1"
     "@types/node": "npm:^22.20.0"
+    "@types/react": "npm:^18.3.12"
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"
+    react: "npm:18.3.1"
     tsdown: "npm:^0.22.2"
     typescript: "npm:^5.6.3"
     unrun: "npm:^0.3.1"

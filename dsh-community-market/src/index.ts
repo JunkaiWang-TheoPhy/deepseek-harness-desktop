@@ -59,6 +59,14 @@ export {
   Config as MarketHostConfigSchema,
 } from './host/plugin.js'
 export type { Config as MarketHostConfig } from './host/plugin.js'
+export { PersistedCatalogSourceStore } from './host/store-impl.js'
+export { SettingsKvStorage } from './host/settings-storage.js'
+export { DefaultSourceRegistry } from './host/registry.js'
+export { CatalogSnapshotCache } from './host/cache.js'
+export { CatalogAggregator } from './host/aggregate.js'
+export type { SourceInput, SourceOutcome, AggregateResult } from './host/aggregate.js'
+export { StandardHttpJsonAdapter } from './host/adapters/standard.js'
+export { Dsh1024StoreAdapter } from './host/adapters/dsh-1024store.js'
 export {
   RestrictedHttpError,
   isRestrictedHttpError,
