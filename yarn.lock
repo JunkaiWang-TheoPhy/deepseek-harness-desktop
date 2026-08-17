@@ -7274,6 +7274,12 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "dsh-community-market@workspace:dsh-community-market"
   dependencies:
+    "@deepseek-ai/cordis": "npm:4.0.1"
+    "@deepseek-ai/dsh-brand": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-host-webserver": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-invariants": "npm:0.1.0-rc.6"
+    "@deepseek-ai/dsh-settings": "npm:0.1.0-rc.6"
+    "@deepseek-ai/schemastery": "npm:^3.18.1"
     "@types/node": "npm:^22.20.0"
     ajv: "npm:^8.17.1"
     ajv-formats: "npm:^3.0.1"

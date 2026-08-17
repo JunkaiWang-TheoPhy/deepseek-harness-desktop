@@ -46,6 +46,20 @@ export type {
 
 export { RestrictedHttpClient } from './host/http-client.js'
 export {
+  buildBuiltInAdapters,
+  buildMarketHandle,
+  dispatchMarketRequest,
+  MARKET_ROUTE_PREFIX,
+} from './host/routes.js'
+export type { MarketHostHandle } from './host/routes.js'
+export {
+  apply as applyMarketHost,
+  name as marketHostName,
+  inject as marketHostInject,
+  Config as MarketHostConfigSchema,
+} from './host/plugin.js'
+export type { Config as MarketHostConfig } from './host/plugin.js'
+export {
   RestrictedHttpError,
   isRestrictedHttpError,
 } from './host/http-errors.js'
