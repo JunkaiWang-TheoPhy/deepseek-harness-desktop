@@ -113,7 +113,6 @@ function trackTurnEvent(
 /** Register optional live settings plus job and session native attention handling. */
 export function apply(ctx: Context): void {
   let settings = DEFAULT_SETTINGS
-  const openTurns = new Map<string, OpenTurnState>()
 
   ctx.inject(['settings'], (settingsCtx) => {
     settingsCtx.effect(() => {
@@ -140,8 +139,11 @@ export function apply(ctx: Context): void {
   })
 
   ctx.inject(['sessions'], (sessionsCtx) => {
-    sessionsCtx.effect(() => sessionsCtx.on('session/event', (session, event) => {
-      trackTurnEvent(session, event, openTurns, settings, sessionsCtx.desktopRuntime)
-    }), 'dsh-plugin-desktop: direct user turn attention')
+    sessionsCtx.effect(() => {
+      const openTurns = new Map<string, OpenTurnState>()
+      return sessionsCtx.on('session/event', (session, event) => {
+        trackTurnEvent(session, event, openTurns, settings, sessionsCtx.desktopRuntime)
+      })
+    }, 'dsh-plugin-desktop: direct user turn attention')
   })
 }

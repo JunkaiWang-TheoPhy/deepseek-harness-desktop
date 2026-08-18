@@ -32,6 +32,8 @@ interface Harness {
   jobDone(snapshot: JobSnapshot): Promise<void>
   sessionEvent(session: Session, event: SessionEvent): Promise<void>
   updateSettings(next: DesktopNotificationSettings): Promise<void>
+  teardownSessions(): void
+  reattachSessions(): void
   dispose(): void
 }
 
@@ -51,6 +53,15 @@ function createHarness(options: HarnessOptions = {}): Harness {
     | undefined
   let onSessionEvent:
     | ((session: Session, event: SessionEvent) => void | PromiseLike<void>)
+    | undefined
+  let attachSessions:
+    | (() => void)
+    | undefined
+  let stopSessionsEffect:
+    | (() => void)
+    | undefined
+  let activeInjection:
+    | 'sessions'
     | undefined
   const disposers: Array<() => void> = []
   const runtime = {
@@ -99,8 +110,15 @@ function createHarness(options: HarnessOptions = {}): Harness {
       }),
     },
     inject: vi.fn((services: string[], callback: (child: Context) => void) => {
-      if (services.every(service => options[service as keyof HarnessOptions] ?? true)) {
+      const serviceKey = services.join(',')
+      const runInjection = () => {
+        activeInjection = serviceKey === 'sessions' ? 'sessions' : undefined
         callback(ctx as unknown as Context)
+        activeInjection = undefined
+      }
+      if (serviceKey === 'sessions') attachSessions = runInjection
+      if (services.every(service => options[service as keyof HarnessOptions] ?? true)) {
+        runInjection()
       }
     }),
     on: vi.fn((event: string, listener: typeof onSessionEvent) => {
@@ -110,6 +128,9 @@ function createHarness(options: HarnessOptions = {}): Harness {
     }),
     effect: vi.fn((registerEffect: () => (() => void) | void) => {
       const dispose = registerEffect()
+      if (activeInjection === 'sessions') {
+        stopSessionsEffect = typeof dispose === 'function' ? dispose : undefined
+      }
       if (typeof dispose === 'function') disposers.push(dispose)
       return dispose
     }),
@@ -136,6 +157,14 @@ function createHarness(options: HarnessOptions = {}): Harness {
       const previous = settingsState.current
       settingsState.current = next
       await watcher?.(next, previous)
+    },
+    teardownSessions() {
+      stopSessionsEffect?.()
+      stopSessionsEffect = undefined
+      onSessionEvent = undefined
+    },
+    reattachSessions() {
+      attachSessions?.()
     },
     dispose() {
       for (const dispose of disposers.splice(0).reverse()) dispose()
@@ -424,5 +453,23 @@ describe('desktop notifications Host plugin', () => {
       [{ title: 'User Turn Failed', body: 'A direct user turn needs attention.' }],
       [{ title: 'Turn Completed', body: 'A direct user turn has finished.' }],
     ])
+  })
+
+  it('drops open turns when the optional sessions wiring is torn down and reattached', async () => {
+    const harness = createHarness({ jobs: false, sessions: true, settings: true })
+    const activeSession = session()
+
+    await harness.sessionEvent(activeSession, event('turn/start', { turn: 7 }, 1))
+    await harness.sessionEvent(activeSession, userMessage(7, 'user'))
+
+    harness.teardownSessions()
+    harness.reattachSessions()
+
+    await harness.sessionEvent(activeSession, event('turn/end', {
+      turn: 7,
+      reason: { kind: 'completed' },
+    }, 3))
+
+    expect(harness.notifyAttention).not.toHaveBeenCalled()
   })
 })
