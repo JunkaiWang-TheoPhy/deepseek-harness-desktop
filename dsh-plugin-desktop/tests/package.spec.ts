@@ -85,6 +85,10 @@ describe('published package surface', () => {
       types: './lib/types/diagnostics.d.ts',
       default: './lib/diagnostics.js',
     })
+    expect(manifest.exports).toHaveProperty('./job-notifications', {
+      types: './lib/types/job-notifications.d.ts',
+      default: './lib/job-notifications.js',
+    })
     expect(manifest.exports).toHaveProperty('./updates', {
       types: './lib/types/updates.d.ts',
       default: './lib/updates.js',
@@ -110,6 +114,7 @@ describe('published package surface', () => {
     expect(readFileSync(new URL('cordis.patch.yml', packageRoot), 'utf8')).toContain('name: dsh-plugin-desktop/pnpm')
     expect(readFileSync(new URL('cordis.patch.yml', packageRoot), 'utf8')).toContain('name: dsh-plugin-desktop/profiles')
     expect(readFileSync(new URL('cordis.patch.yml', packageRoot), 'utf8')).toContain('name: dsh-plugin-desktop/diagnostics')
+    expect(readFileSync(new URL('cordis.patch.yml', packageRoot), 'utf8')).toContain('name: dsh-plugin-desktop/job-notifications')
     expect(readFileSync(new URL('cordis.patch.yml', packageRoot), 'utf8')).toContain('name: dsh-plugin-desktop/updates')
   })
 
@@ -132,6 +137,7 @@ describe('published package surface', () => {
     expect(config).toContain("pnpm: 'src/pnpm.ts'")
     expect(config).toContain("profiles: 'src/profiles.ts'")
     expect(config).toContain("diagnostics: 'src/diagnostics.ts'")
+    expect(config).toContain("'job-notifications': 'src/job-notifications.ts'")
     expect(config).toContain("'diagnostic-export-worker': 'src/diagnostic-export-worker.ts'")
     expect(config).toContain("terminal: 'src/terminal.ts'")
     expect(config).toContain("'update-download': 'src/update-download.ts'")

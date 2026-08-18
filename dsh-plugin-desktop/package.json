@@ -59,6 +59,10 @@
       "types": "./lib/types/diagnostics.d.ts",
       "default": "./lib/diagnostics.js"
     },
+    "./job-notifications": {
+      "types": "./lib/types/job-notifications.d.ts",
+      "default": "./lib/job-notifications.js"
+    },
     "./updates": {
       "types": "./lib/types/updates.d.ts",
       "default": "./lib/updates.js"

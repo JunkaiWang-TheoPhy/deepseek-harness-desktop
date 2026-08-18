@@ -235,6 +235,9 @@ describe('desktop profile composition', {
     expect(rows.find(row => row.id === 'desktop-pnpm')).toEqual(expect.objectContaining({
       name: 'dsh-plugin-desktop/pnpm',
     }))
+    expect(rows.find(row => row.id === 'desktop-job-notifications')).toEqual(expect.objectContaining({
+      name: 'dsh-plugin-desktop/job-notifications',
+    }))
     expect(rows.find(row => row.id === 'desktop-updates')).toEqual(expect.objectContaining({
       name: 'dsh-plugin-desktop/updates',
     }))

@@ -72,6 +72,33 @@ const diagnosticsPrivacyCopy: Record<DesktopLocale, DesktopDiagnosticsPrivacyCop
   },
 }
 
+export interface DesktopJobNotificationCopy {
+  readonly title: string
+  readonly body: string
+}
+
+const completedJobCopy: Record<DesktopLocale, DesktopJobNotificationCopy> = {
+  en: {
+    title: 'Background Job Completed',
+    body: 'A background job has finished.',
+  },
+  zh: {
+    title: '后台任务已完成',
+    body: '有一个后台任务已结束。',
+  },
+}
+
+const failedJobCopy: Record<DesktopLocale, DesktopJobNotificationCopy> = {
+  en: {
+    title: 'Background Job Failed',
+    body: 'A background job needs attention.',
+  },
+  zh: {
+    title: '后台任务失败',
+    body: '有一个后台任务需要处理。',
+  },
+}
+
 /** Resolve DSH's zh/en locale from an Electron or browser language tag. */
 export function desktopLocaleFromLanguageTag(languageTag: string): DesktopLocale {
   return /^zh(?:[-_]|$)/i.test(languageTag) ? 'zh' : 'en'
@@ -89,4 +116,12 @@ export function desktopTrayLabel(
 /** Resolve the native privacy confirmation shown before diagnostics export. */
 export function desktopDiagnosticsPrivacyCopy(locale: DesktopLocale): DesktopDiagnosticsPrivacyCopy {
   return diagnosticsPrivacyCopy[locale]
+}
+
+/** Resolve the privacy-safe native copy shown for background-job attention. */
+export function desktopJobNotificationCopy(
+  locale: DesktopLocale,
+  status: 'completed' | 'failed',
+): DesktopJobNotificationCopy {
+  return status === 'completed' ? completedJobCopy[locale] : failedJobCopy[locale]
 }

@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url'
 import { desktopTerminalStateDirectory, openDesktopTerminal } from './desktop-terminal.ts'
 import { packagedDependencyPath } from './packaged-runtime-path.ts'
 import type {
+  DesktopAttentionNotification,
   DesktopNotification,
   DesktopLocale,
   DesktopPlatform,
@@ -111,6 +112,7 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
   private terminalSpec: DesktopTerminalSpec | undefined
   private diagnosticExport: Promise<void> | undefined
   private rendererBootReported = false
+  private attentionCount = 0
 
   constructor(
     private readonly restart: () => Promise<void>,
@@ -176,9 +178,27 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
   show(): void {
     const window = this.window
     if (window === undefined || window.isDestroyed()) return
+    this.clearAttention()
     if (window.isMinimized()) window.restore()
     window.show()
     window.focus()
+  }
+
+  /** @inheritdoc */
+  notifyAttention(notification: DesktopAttentionNotification): void {
+    const window = this.window
+    if (window === undefined || window.isDestroyed() || window.isFocused()) return
+    this.attentionCount += 1
+    if (this.platform === 'win32') window.flashFrame(true)
+    else app.setBadgeCount(this.attentionCount)
+
+    if (!Notification.isSupported()) return
+    const nativeNotification = new Notification({
+      title: notification.title,
+      body: notification.body,
+    })
+    nativeNotification.once('click', () => { this.show() })
+    nativeNotification.show()
   }
 
   /** @inheritdoc */
@@ -379,6 +399,17 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
       body: notification.body,
     })
     nativeNotification.show()
+  }
+
+  private clearAttention(): void {
+    if (this.attentionCount === 0) return
+    this.attentionCount = 0
+    if (this.platform === 'win32') {
+      const window = this.window
+      if (window !== undefined && !window.isDestroyed()) window.flashFrame(false)
+      return
+    }
+    app.setBadgeCount(0)
   }
 
   /** Ask before making the fixed download endpoint's counted request. */
@@ -585,6 +616,7 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
     this.window = window
 
     const show = (): void => { this.show() }
+    const clearAttention = (): void => { this.clearAttention() }
     const close = (event: Electron.Event): void => {
       if (this.quitting) return
       event.preventDefault()
@@ -614,6 +646,7 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
 
     app.on('activate', show)
     window.on('close', close)
+    window.on('focus', clearAttention)
     window.on('page-title-updated', preserveBlankTitle)
     window.webContents.on('before-input-event', handleZoomShortcut)
     window.webContents.on('will-frame-navigate', navigate)
@@ -651,6 +684,7 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
     } catch (cause) {
       app.off('activate', show)
       window.off('page-title-updated', preserveBlankTitle)
+      window.off('focus', clearAttention)
       window.webContents.off('before-input-event', handleZoomShortcut)
       tray?.off('click', show)
       tray?.destroy()
@@ -669,8 +703,10 @@ export class ElectronDesktopRuntime implements DesktopRuntime {
     return async () => {
       if (released) return
       released = true
+      this.clearAttention()
       app.off('activate', show)
       window.off('close', close)
+      window.off('focus', clearAttention)
       window.off('page-title-updated', preserveBlankTitle)
       window.webContents.off('before-input-event', handleZoomShortcut)
       window.webContents.off('will-frame-navigate', navigate)
