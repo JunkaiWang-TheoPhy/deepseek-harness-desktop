@@ -100,6 +100,12 @@ Registry 身份、integrity、仓库匹配、兼容 metadata 和 lifecycle scrip
 
 确认前，用户仍应检查 publisher、源码仓库、插件行为，以及自己是否信任这些代码。目录收录、**可安装**卡片、npm 复核成功和本地 receipt，都不代表 Anywhere Labs、DSH 1024Store、DeepSeek 或目录 provider 作出安全背书。
 
+## 更新插件
+
+**已安装**页面会比较验证过的 Market receipt 和当前目录，并标出可用的精确新版本。用户可以更新单个插件，也可以确认**全部更新**；Desktop 会再次验证每个目标，并在一个受保护的 package 事务中应用所有选定的精确版本。原有 receipt 身份保持不变，同时更新版本、integrity、bundle 证据、显示名称和安装时间。
+
+自动更新默认关闭，启用前必须通过明确警告确认，该授权会覆盖今后由 Market 管理的插件版本。启用后，Desktop 客户端会在启动时检查当前目录；发现更新时，会执行同一条经过验证的批量更新路径，并在受保护事务完成后重启 Desktop。手动更新、全部更新和自动更新都会禁用 lifecycle script，并共享操作前的 profile 快照。Package 操作失败会恢复旧 profile 状态；启动失败会进入现有原生恢复流程，并在回滚后恢复旧 receipt 所有权。
+
 ## 开发边界
 
 安装路径会把目录许可、package 执行和启动恢复保持为独立状态：

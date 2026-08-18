@@ -100,6 +100,12 @@ Registry identity, integrity, repository matching, compatibility metadata, and l
 
 Before confirming, users should still review the publisher, repository, requested behavior, and whether they trust the code. Catalog inclusion, an **Installable** card, a successful npm check, and a saved receipt are not security endorsements by Anywhere Labs, DSH 1024Store, DeepSeek, or the catalog provider.
 
+## Update plugins
+
+The **Installed** view compares verified Market receipts with the active catalog and marks newer exact versions. Users may update one plugin or confirm **Update all**, which verifies every target again and applies all selected exact versions in one protected package transaction. Existing receipt identities are retained while their version, integrity, bundle evidence, display name, and installation time are refreshed.
+
+Automatic updates are opt-in and require an explicit warning confirmation covering future Market-managed releases. When enabled, the Desktop client checks the active catalog at startup, runs the same verified batch update path when updates are available, and restarts Desktop after the protected transaction completes. Manual, batch, and automatic updates all disable lifecycle scripts and use the same pre-operation profile snapshot. A failed package operation restores the previous profile image; a startup failure enters the existing native recovery flow and restores previous receipt ownership after rollback.
+
 ## Developer boundary
 
 The installation path keeps catalog approval, package execution, and startup recovery separate:
