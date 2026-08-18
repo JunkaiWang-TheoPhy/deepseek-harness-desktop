@@ -265,12 +265,12 @@ function normalizeArchiveEntry(entry: string): string {
  * Inspect one archive and reject an incomplete packaged runtime.
  * @param archivePath - resolved app.asar path.
  * @param list - ASAR listing implementation.
- * @returns Nothing; failure rejects the package before signing.
+ * @returns The normalized archive entry set for physical mirror verification.
  */
 export function verifyPackagedAsar(
   archivePath: string,
   list: ArchiveLister = listPackage,
-): void {
+): ReadonlySet<string> {
   let entries: readonly string[]
   try {
     entries = list(archivePath, { isPack: false })
@@ -286,6 +286,30 @@ export function verifyPackagedAsar(
   if (missing.length > 0) {
     throw new Error(
       `dsh-plugin-desktop: packaged runtime at ${archivePath} is missing required ASAR entries: ${missing.join(', ')}`,
+    )
+  }
+  return present
+}
+
+/**
+ * Require every ASAR header entry to have a physical counterpart.
+ *
+ * The Desktop packaging contract unpacks every included application file so
+ * profile fallback links and Node ESM resolution never target virtual paths.
+ * Checking the complete header closes the gap left by a curated entry list:
+ * a collector regression cannot silently omit transitive packages such as
+ * yaml, zod, or typebox from app.asar.unpacked.
+ */
+export function verifyUnpackedArchiveMirror(
+  archiveEntries: ReadonlySet<string>,
+  unpackedRoot: string,
+  exists: FileProbe = existsSync,
+): void {
+  const missing = [...archiveEntries]
+    .filter(entry => entry.length > 0 && !exists(join(unpackedRoot, entry)))
+  if (missing.length > 0) {
+    throw new Error(
+      `dsh-plugin-desktop: unpacked runtime at ${unpackedRoot} is missing ASAR-declared physical entries: ${missing.join(', ')}`,
     )
   }
 }
@@ -339,7 +363,7 @@ export function verifyPackagedRuntime(
   exists: FileProbe = existsSync,
   resolvePackage?: PackageResolver,
 ): void {
-  verifyPackagedAsar(resolvePackagedAsarPath(context), list)
+  const archiveEntries = verifyPackagedAsar(resolvePackagedAsarPath(context), list)
   const unpackedRoot = resolvePackagedUnpackedRoot(context)
   const requiredPhysicalEntries = context.electronPlatformName === 'win32'
     ? [...REQUIRED_UNPACKED_RUNTIME_ENTRIES, ...REQUIRED_WINDOWS_X64_NODE_PTY_ENTRIES]
@@ -361,6 +385,7 @@ export function verifyPackagedRuntime(
       )
     }
   }
+  verifyUnpackedArchiveMirror(archiveEntries, unpackedRoot, exists)
   verifyUnpackedPackageResolution(unpackedRoot, resolvePackage)
 }
 
