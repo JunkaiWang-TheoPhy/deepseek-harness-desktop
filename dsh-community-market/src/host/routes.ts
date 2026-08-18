@@ -662,7 +662,13 @@ export function registerMarketRoutes(
 
         const sourceRecordIds = requestUrl.searchParams.getAll('sourceRecordId')
         const cursors = requestUrl.searchParams.getAll('cursor')
-        if (sourceRecordIds.length > 1 || cursors.length > 1 || cursors.length > sourceRecordIds.length) {
+        if (
+          sourceRecordIds.length > 1
+          || cursors.length > 1
+          || cursors.length > sourceRecordIds.length
+          || sourceRecordIds.some(value => value.length === 0)
+          || cursors.some(value => value.length === 0)
+        ) {
           throw new Error('catalog cursor requires exactly one source record')
         }
         const scope: CatalogFetchScope | undefined = sourceRecordIds.length === 0
@@ -674,6 +680,7 @@ export function registerMarketRoutes(
         const index = await service.scanCatalog(signal, {
           force,
           ...(locale === null || locale === '' ? {} : { locale }),
+          ...(scope === undefined ? {} : { expectedSourceRecordId: scope.sourceRecordId }),
         })
         signal.throwIfAborted()
         const results = index === undefined ? [] : service.queryCatalog(index, query, scope)

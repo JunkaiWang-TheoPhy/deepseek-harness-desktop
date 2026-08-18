@@ -25,7 +25,7 @@
 2. Host 会判断这个精确的标准化来源/条目能否使用受管安装。出现在**可安装**中，只表示它通过了本地、fail-closed 的结构候选规则；此时 Host 尚未针对该 package 请求 npm。目录给出的版本或命令始终没有执行授权。
 3. 受管 preview 此时才针对这一个候选访问官方 npm registry，检查 package/仓库身份、deprecated 状态、lifecycle script、runtime、integrity、tarball、DSH bundle 证据和当前 profile 可安装性。只有成功后，同一个弹窗才会切换成确认框，并展示目录显示名、验证过的精确 `packageName@version`、当前 profile 和过期时间。
 4. 阅读“本地代码”提示并确认。确认是一次性且短时有效的；如果当前 profile 或 Host 候选发生变化，或者确认过期、已被使用，就需要重新预览。
-5. Desktop 在当前 profile 中执行受管 package 操作。Host 会在真正修改 profile 前再次检查 package，随后验证安装后的 DSH bundle 并保存 receipt。
+5. Desktop 在当前 profile 中执行受管 package 操作，并对目标 package 及其整个依赖树禁用 lifecycle script。Host 会在真正修改 profile 前再次检查 package，随后验证安装后的 DSH bundle 并保存 receipt。
 6. 选择**立即重启**或**稍后重启**。安装成功会修改磁盘上的 profile，但当前运行的进程不会自动加载新插件。立即重启会消费一份短时、一次性重启许可，系统不会静默重启。
 
 如果受管 preview 不可用，弹窗会保留为详情。对于精确稳定的 npm 身份，Host 可以展示一条根据规范化身份重建的、有界且只用于展示的命令。它可能与仓库中描述的命令不同，不是 provider 返回的原始命令，也没有通过受管安装器的全部验证。**打开 DSH 终端**不会提交命令、路径或 profile，只负责打开 Desktop 已配置的终端；用户需要先检查源码，再自行决定是否复制并运行文本。手动安装不会生成 Market receipt，因此也不会授予 Market 卸载权限。
@@ -77,7 +77,7 @@ Desktop 会把这个带版本、按 profile 隔离的选择保存在 `<Desktop u
 
 ## 这些检查不能证明什么
 
-Registry 身份、integrity、仓库匹配、兼容 metadata 和 lifecycle script 策略，只能减少 Desktop “到底安装了什么”的歧义；它们不能判断插件代码或依赖树是否可信、是否保护隐私、是否正确，或是否没有漏洞。重启后，插件会以用户权限作为本地代码运行。
+Registry 身份、integrity、仓库匹配、兼容 metadata 和 lifecycle script 策略，只能减少 Desktop “到底安装了什么”的歧义。受管安装会禁用整个依赖树的 lifecycle script，但这不能判断已安装代码是否可信、是否保护隐私、是否正确，或是否没有漏洞。重启后，插件会以用户权限作为本地代码运行。
 
 确认前，用户仍应检查 publisher、源码仓库、插件行为，以及自己是否信任这些代码。目录收录、**可安装**卡片、npm 复核成功和本地 receipt，都不代表 Anywhere Labs、DSH 1024Store、DeepSeek 或目录 provider 作出安全背书。
 

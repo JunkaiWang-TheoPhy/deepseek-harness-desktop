@@ -25,7 +25,7 @@ Optional catalog metadata reports `scannedAt`, cache `expiresAt`, optional `prov
 2. The Host checks whether that exact normalized source/item is eligible for managed installation. Presence in **Installable** means only that it passed local, fail-closed structural candidate rules; the Host has not yet queried npm for that package. The catalog's version or command is never execution authority.
 3. Managed preview verifies this one candidate against the official npm registry, including package/repository identity, deprecation, lifecycle scripts, runtime, integrity, tarball, DSH bundle evidence, and current-profile availability. Only success turns the same dialog into a confirmation with the catalog display name, verified exact `packageName@version`, active profile, and expiry.
 4. Read the local-code warning and confirm. The confirmation is one-shot and short-lived. If the active profile or Host candidate changes, or the confirmation expires or is reused, a new preview is required.
-5. Desktop runs the managed package operation in the active profile. The Host checks the package again before it changes the profile, then verifies the installed DSH bundle and saves a receipt.
+5. Desktop runs the managed package operation in the active profile with lifecycle scripts disabled for the target and its dependency tree. The Host checks the package again before it changes the profile, then verifies the installed DSH bundle and saves a receipt.
 6. Choose **Restart now** or **Restart later**. A successful install changes the profile on disk, but the running process does not load the new plugin automatically. The immediate action consumes a short-lived one-shot restart grant and never restarts silently.
 
 If managed preview is unavailable, the dialog remains a details view. For an exact stable npm identity, the Host may show a bounded display-only command reconstructed from normalized identity. It may differ from the command described in the repository, is not the provider's original command, and has not passed the managed installer's complete verification. **Open DSH Terminal** sends no command, path, or profile: it only opens Desktop's configured terminal so the user can inspect the source and decide whether to copy and run the text. A manual install creates no Market receipt and therefore grants no Market uninstall authority.
@@ -77,7 +77,7 @@ Desktop stores this versioned, profile-scoped choice in `<Desktop user data>/plu
 
 ## What these checks do not prove
 
-Registry identity, integrity, repository matching, compatibility metadata, and lifecycle-script policy reduce ambiguity around *what* Desktop installs. They do not determine whether the plugin's code or dependency tree is trustworthy, private, correct, or free from vulnerabilities. A plugin runs locally with the user's permissions after restart.
+Registry identity, integrity, repository matching, compatibility metadata, and lifecycle-script policy reduce ambiguity around *what* Desktop installs. Managed installation disables lifecycle scripts across the dependency tree, but this does not determine whether the installed code is trustworthy, private, correct, or free from vulnerabilities. A plugin runs locally with the user's permissions after restart.
 
 Before confirming, users should still review the publisher, repository, requested behavior, and whether they trust the code. Catalog inclusion, an **Installable** card, a successful npm check, and a saved receipt are not security endorsements by Anywhere Labs, DSH 1024Store, DeepSeek, or the catalog provider.
 

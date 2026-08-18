@@ -1140,6 +1140,7 @@ export class MarketInstallService {
     return [
       'add',
       '--save-exact',
+      '--ignore-scripts',
       `--registry=${NPM_REGISTRY}`,
       ...(scope === undefined ? [] : [`--${scope}:registry=${NPM_REGISTRY}`]),
       `${packageName}@${version}`,
