@@ -560,6 +560,54 @@ describe('MarketSettingsTab', () => {
     })
   })
 
+  it('keeps an install preview retryable after execution fails', async () => {
+    const item = makeInstallableItem(firstSource, 'retry-install', 'Retry Install Plugin', 'dsh-plugin-retry-install')
+    const receipt = makeReceipt({
+      packageName: item.package!.name,
+      version: item.latestVersion!,
+      itemId: item.id,
+      displayName: item.displayName,
+    })
+    vi.mocked(readMarketState).mockResolvedValue(enabledState)
+    vi.mocked(readMarketCatalog).mockResolvedValue(catalogForSource(firstSource, [item]))
+    vi.mocked(readMarketInstallable).mockResolvedValue(installableResponse([item]))
+    vi.mocked(readMarketInstallations).mockResolvedValue({ installations: [] })
+    vi.mocked(previewMarketOperation).mockResolvedValue({
+      action: 'install',
+      profileName: receipt.profileName,
+      packageName: receipt.packageName,
+      version: receipt.version,
+      displayName: receipt.displayName,
+      expiresAt: '2026-08-18T00:05:00.000Z',
+      previewId: 'opaque-retry-install-preview',
+    })
+    vi.mocked(executeMarketOperation)
+      .mockRejectedValueOnce(new Error('install failed'))
+      .mockResolvedValueOnce({
+        action: 'install',
+        receipt,
+        restartToken: 'opaque-retry-install-restart',
+      })
+    render(<MarketSettingsTab {...props} />)
+
+    fireEvent.click(await screen.findByRole('button', { name: en.installable }))
+    fireEvent.click(await screen.findByRole('button', { name: `${en.install}: ${item.displayName}` }))
+    const confirmation = await screen.findByRole('dialog', { name: en.confirmInstallTitle })
+    fireEvent.click(within(confirmation).getByRole('button', { name: en.confirmInstall }))
+
+    await waitFor(() => expect(executeMarketOperation).toHaveBeenCalledWith(
+      'opaque-retry-install-preview',
+      expect.any(AbortSignal),
+    ))
+    expect((await screen.findByRole('alert')).textContent).toContain(en.executeError)
+    expect(within(screen.getByRole('dialog', { name: en.confirmInstallTitle }))
+      .getByRole('button', { name: en.confirmInstall })).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: en.confirmInstall }))
+    await waitFor(() => expect(executeMarketOperation).toHaveBeenCalledTimes(2))
+    expect(await screen.findByRole('dialog', { name: en.installComplete })).toBeTruthy()
+  })
+
   it('renders an unsafe item source as plain text without an external link', async () => {
     const unsafeSource: MarketSourceView = {
       ...firstSource,
