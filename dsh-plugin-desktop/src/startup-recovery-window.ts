@@ -3,6 +3,7 @@
 import { app, BrowserWindow, screen, shell } from 'electron'
 import { basename } from 'node:path'
 import type { DesktopLocale } from './runtime.ts'
+import { applicationNeedsReveal, revealApplication } from './electron-reveal.ts'
 import {
   DesktopStartupRecoveryController,
   type DesktopStartupRecoveryDisablePreview,
@@ -494,15 +495,16 @@ export class DesktopStartupRecoveryWindow {
     }
     window.webContents.on('will-navigate', navigate)
     window.webContents.on('will-redirect', navigate)
-    const show = (): void => {
-      if (window.isMinimized()) window.restore()
-      window.show()
-      window.focus()
+    const show = (): void => { revealApplication(window) }
+    const activate = (): void => {
+      if (applicationNeedsReveal(window)) show()
     }
-    app.on('activate', show)
+    app.on('activate', activate)
+    if (process.platform === 'darwin') app.on('did-become-active', activate)
     window.once('ready-to-show', show)
     window.on('closed', () => {
-      app.off('activate', show)
+      app.off('activate', activate)
+      if (process.platform === 'darwin') app.off('did-become-active', activate)
       this.window = undefined
       this.finish('quit')
     })
@@ -514,9 +516,7 @@ export class DesktopStartupRecoveryWindow {
   /** Bring an already open recovery window to the foreground. */
   show(): void {
     if (this.window === undefined || this.window.isDestroyed()) return
-    if (this.window.isMinimized()) this.window.restore()
-    this.window.show()
-    this.window.focus()
+    revealApplication(this.window)
   }
 
   private async handleAction(action: { readonly action: string; readonly id?: string }): Promise<void> {

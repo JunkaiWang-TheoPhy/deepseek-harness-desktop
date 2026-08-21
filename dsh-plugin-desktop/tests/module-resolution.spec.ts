@@ -7,9 +7,22 @@ const hooks = vi.hoisted(() => ({
     nextResolve: (specifier: string, context: { parentURL?: string }) => unknown,
   ) => unknown),
   deregister: vi.fn(),
+  desktopResolve: vi.fn((specifier: string) => {
+    const exports: Record<string, string> = {
+      'dsh-plugin-desktop': '/current/dsh-plugin-desktop/lib/index.js',
+      'dsh-plugin-desktop/profile': '/current/dsh-plugin-desktop/lib/profile.js',
+      'dsh-plugin-desktop/client': '/current/dsh-plugin-desktop/lib/client.js',
+    }
+    const resolved = exports[specifier]
+    if (resolved !== undefined) return resolved
+    const error = new Error(`Package subpath is not exported: ${specifier}`)
+    Object.assign(error, { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' })
+    throw error
+  }),
 }))
 
 vi.mock('node:module', () => ({
+  createRequire: vi.fn(() => ({ resolve: hooks.desktopResolve })),
   registerHooks: vi.fn((definition: { resolve: typeof hooks.resolve }) => {
     hooks.resolve = definition.resolve
     return { deregister: hooks.deregister }
@@ -22,6 +35,7 @@ describe('installProfilePackageResolver', () => {
   beforeEach(() => {
     hooks.resolve = undefined
     hooks.deregister.mockClear()
+    hooks.desktopResolve.mockClear()
   })
 
   it('routes Loader bare imports through the selected profile and keeps relative imports unchanged', async () => {
@@ -39,8 +53,35 @@ describe('installProfilePackageResolver', () => {
       nextResolve,
     )).toEqual({
       shortCircuit: true,
-      url: new URL('../lib/index.js', new URL('../src/module-resolution.ts', import.meta.url)).href,
+      url: 'file:///current/dsh-plugin-desktop/lib/index.js',
     })
+
+    expect(hooks.resolve?.(
+      'dsh-plugin-desktop/profile',
+      { parentURL: loaderEntryUrl },
+      nextResolve,
+    )).toEqual({
+      shortCircuit: true,
+      url: 'file:///current/dsh-plugin-desktop/lib/profile.js',
+    })
+
+    expect(() => hooks.resolve?.(
+      'dsh-plugin-desktop/private-entry',
+      { parentURL: loaderEntryUrl },
+      nextResolve,
+    )).toThrow('Package subpath is not exported')
+
+    await expect(hooks.resolve?.(
+      'dsh-plugin-desktop-old',
+      { parentURL: loaderEntryUrl },
+      nextResolve,
+    )).resolves.toEqual({
+      specifier: 'dsh-plugin-desktop-old',
+      context: { parentURL: profileBaseUrl },
+    })
+    expect(hooks.desktopResolve).toHaveBeenCalledWith('dsh-plugin-desktop')
+    expect(hooks.desktopResolve).toHaveBeenCalledWith('dsh-plugin-desktop/profile')
+    expect(hooks.desktopResolve).not.toHaveBeenCalledWith('dsh-plugin-desktop-old')
 
     await expect(hooks.resolve?.(
       'left-pad',
