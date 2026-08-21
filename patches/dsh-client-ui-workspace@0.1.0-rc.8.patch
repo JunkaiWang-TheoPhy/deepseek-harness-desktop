@@ -1,8 +1,8 @@
 diff --git a/lib/client.js b/lib/client.js
-index ec779d5750f3810736ee05290bdd45d858cd00e0..447c13de9faf6d49d47464156e93cf404f23f6e8 100644
+index 7ca5fd3d02cdcc27c05daa23af5879101eb3c97b..e87f842b22643198e1de9ac309fb2f69562c3670 100644
 --- a/lib/client.js
 +++ b/lib/client.js
-@@ -696,6 +696,7 @@ window.__ModuleLoader__.load({
+@@ -697,6 +697,7 @@ window.__ModuleLoader__.load({
  			const statuses = sessionStatuses(node, t);
  			const showStatus = statuses[0].state !== "done" || row.completed;
  			const [menuOpen, setMenuOpen] = (0, react.useState)(false);
@@ -10,7 +10,7 @@ index ec779d5750f3810736ee05290bdd45d858cd00e0..447c13de9faf6d49d47464156e93cf40
  			const sessionMenuItems = [
  				{
  					id: "rename",
-@@ -718,9 +719,22 @@ window.__ModuleLoader__.load({
+@@ -719,9 +720,22 @@ window.__ModuleLoader__.load({
  					className: clsx(Rows_module_css_default.sessionRow, selected && Rows_module_css_default.selected, menuOpen && Rows_module_css_default.menuOpen, flat && !showStatus && Rows_module_css_default.flatSessionRowWithoutStatus, drag?.marker === "before" && Rows_module_css_default.dropBefore, drag?.marker === "after" && Rows_module_css_default.dropAfter),
  					role: "treeitem",
  					"aria-selected": selected,
@@ -33,7 +33,7 @@ index ec779d5750f3810736ee05290bdd45d858cd00e0..447c13de9faf6d49d47464156e93cf40
  					draggable: drag !== void 0,
  					onDragStart: drag === void 0 ? void 0 : (e) => {
  						e.dataTransfer.effectAllowed = "move";
-@@ -758,6 +772,7 @@ window.__ModuleLoader__.load({
+@@ -759,6 +773,7 @@ window.__ModuleLoader__.load({
  								open: menuOpen,
  								onClose: () => {
  									setMenuOpen(false);
@@ -41,7 +41,7 @@ index ec779d5750f3810736ee05290bdd45d858cd00e0..447c13de9faf6d49d47464156e93cf40
  								},
  								items: sessionMenuItems,
  								onSelect: (id) => {
-@@ -767,13 +782,25 @@ window.__ModuleLoader__.load({
+@@ -768,13 +783,25 @@ window.__ModuleLoader__.load({
  									if (id === "archive") onArchive(node.id);
  								},
  								portal: true,
@@ -68,7 +68,7 @@ index ec779d5750f3810736ee05290bdd45d858cd00e0..447c13de9faf6d49d47464156e93cf40
  										setMenuOpen((v) => !v);
  									},
  									children: (0, react_jsx_runtime.jsx)(_deepseek_ai_dsh_client_ui_primitives.IconEllipsisOutline16, {})
-@@ -1848,6 +1875,7 @@ window.__ModuleLoader__.load({
+@@ -1852,6 +1879,7 @@ window.__ModuleLoader__.load({
  			};
  			return (0, react_jsx_runtime.jsxs)("div", {
  				className: clsx(WorkspaceBrowser_module_css_default.root, !wide && WorkspaceBrowser_module_css_default.rail),
