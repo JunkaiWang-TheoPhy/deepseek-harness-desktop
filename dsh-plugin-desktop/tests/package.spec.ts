@@ -191,8 +191,16 @@ describe('published package surface', () => {
       'node_modules/@deepseek-ai/dsh-client-ui-workspace/lib/client.js',
       packageRoot,
     ), 'utf8')
-    expect(patch).toContain('data-dsh-workspace-drop-target')
-    expect(installedClient).toContain('data-dsh-workspace-drop-target')
+    for (const marker of [
+      'data-dsh-workspace-drop-target',
+      'data-dsh-session-context-menu',
+      'onContextMenu: (e) =>',
+      '__DSH_DESKTOP_SESSION_CONTEXT_MENU__',
+      'getAnchorRect: contextMenuPoint === null ? void 0',
+    ]) {
+      expect(patch).toContain(marker)
+      expect(installedClient).toContain(marker)
+    }
   })
 
   it('builds public Host plugins and their private native bootstraps', () => {
